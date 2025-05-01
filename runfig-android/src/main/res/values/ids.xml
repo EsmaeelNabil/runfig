@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="tag_debug_overlay_view" type="id"/>
+    <item name="tag_on_back_pressed_callback" type="id"/>
+</resources>
