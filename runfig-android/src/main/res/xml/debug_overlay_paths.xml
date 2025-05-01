@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Path for crash logs stored in internal files directory -->
+    <files-path name="crash_logs" path="crash_logs/"/>
+
+    <files-path name="shared_prefs_export" path="runfig_export/shared_prefs/"/>
+    <root-path name="database_export" path="data/data/${applicationId}/databases/"/>
+</paths>
