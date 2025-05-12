@@ -14,9 +14,9 @@ Runtime Configurations control for Android applications during development and t
     }
 
 
-runfig {
-        variants.add("StagingDebug")
-}
+    runfig {
+        variants.add("StagingDebug")  
+    }
 ```
 
 - add the library to your `build.gradle` file
