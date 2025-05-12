@@ -1,3 +1,4 @@
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
@@ -33,9 +34,19 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
+        freeCompilerArgs = freeCompilerArgs + listOf(
+            "-Xskip-metadata-version-check",
+            "-Xallow-incompatible-classifications"
+        )
     }
     buildFeatures {
         compose = true
+    }
+
+    sourceSets {
+        getByName("main") {
+            java.srcDirs("src/main/java", "src/main/kotlin")
+        }
     }
 }
 
@@ -59,9 +70,51 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
 }
 
-group = project.property("GROUP") as String
-version = project.property("VERSION_NAME") as String
-
 mavenPublishing {
-    publishToMavenCentral(host = SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+
+    configure(
+        AndroidSingleVariantLibrary(
+            variant = "release",
+            sourcesJar = true,
+            publishJavadocJar = true,
+        )
+    )
+
+    coordinates(
+        groupId = "dev.supersam.runfig",
+        artifactId = "runfig-android",
+        version = "0.0.1"
+    )
+
+    pom {
+        name.set("Runfig Android")
+        description.set("A library that allows you to override BuildConfig values at runtime.")
+        inceptionYear.set("2025")
+        url.set("https://github.com/esmaeelnabil/runfig")
+
+        licenses {
+            license {
+                name.set("The Apache Software License, Version 2.0")
+                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                distribution.set("repo")
+            }
+        }
+        developers {
+            developer {
+                id.set("esmaeelnabil")
+                name.set("Esmaeel Moustafa")
+                email.set("esmaeel.nabil.m@gmail.com")
+                url.set("https://supersam.dev")
+            }
+        }
+
+        scm {
+            url.set("https://github.com/esmaeelnabil/runfig")
+            connection.set("scm:git:git://github.com/esmaeelnabil/runfig.git")
+            developerConnection.set("scm:git:git@github.com:esmaeelnabil/runfig.git")
+        }
+    }
+
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+    signAllPublications()
 }
