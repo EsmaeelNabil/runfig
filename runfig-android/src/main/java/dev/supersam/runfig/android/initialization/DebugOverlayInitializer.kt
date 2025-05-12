@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.startup.Initializer
 import dev.supersam.runfig.android.core.DebugOverlayController
 import dev.supersam.runfig.android.features.DefaultActions
-import dev.supersam.runfig.android.features.DefaultInfoProviders
+import dev.supersam.runfig.android.features.providers.DefaultInfoProviders
 
 class DebugOverlayInitializer : Initializer<Unit> {
 

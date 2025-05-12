@@ -9,15 +9,18 @@ import org.gradle.internal.extensions.stdlib.capitalized
 
 class RunfigPlugin : Plugin<Project> {
     override fun apply(project: Project) {
+
+        val extension = project.extensions.create("runfig", RunfigExtension::class.java)
+
         // Apply for standard Android projects
         project.plugins.withId("com.android.application") {
             val android = project.extensions.getByType(AppExtension::class.java)
-            setupVariantTasks(project, android)
+            setupVariantTasks(project, android, extension)
         }
 
         project.plugins.withId("com.android.library") {
             val android = project.extensions.getByType(LibraryExtension::class.java)
-            setupVariantTasks(project, android)
+            setupVariantTasks(project, android, extension)
         }
 
         // Create a fallback task for KMP projects
@@ -32,16 +35,35 @@ class RunfigPlugin : Plugin<Project> {
         }
     }
 
-    private fun setupVariantTasks(project: Project, androidExtension: Any) {
+    /**
+     * Determines if Runfig should be applied to the given variant.
+     * If no variants are specified in the extension, defaults to all debug variants.
+     */
+    private fun shouldApplyToVariant(variant: BaseVariant, extension: RunfigExtension): Boolean {
+        return if (extension.variantNames.isEmpty()) {
+            // Default behavior: apply to all debug variants
+            variant.buildType.isDebuggable || variant.name.lowercase().contains("debug")
+        } else {
+            // Apply only to specified variants
+            extension.variantNames.contains(variant.name)
+        }
+    }
+
+
+    private fun setupVariantTasks(project: Project, androidExtension: Any, extension: RunfigExtension) {
         when (androidExtension) {
             is AppExtension -> {
                 androidExtension.applicationVariants.all { variant ->
-                    createTransformTask(project, variant)
+                    if (shouldApplyToVariant(variant, extension)) {
+                        createTransformTask(project, variant)
+                    }
                 }
             }
             is LibraryExtension -> {
                 androidExtension.libraryVariants.all { variant ->
-                    createTransformTask(project, variant)
+                    if (shouldApplyToVariant(variant, extension)) {
+                        createTransformTask(project, variant)
+                    }
                 }
             }
         }
