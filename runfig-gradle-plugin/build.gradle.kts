@@ -1,16 +1,14 @@
 import com.vanniktech.maven.publish.GradlePlugin
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.SonatypeHost
+import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
     `java-gradle-plugin`
     alias(libs.plugins.mavenPublish)
 }
-
-group = project.property("GROUP") as String
-version = project.property("VERSION_NAME") as String
-
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -40,5 +38,42 @@ kotlin {
 
 mavenPublishing {
     configure(GradlePlugin(javadocJar = JavadocJar.Javadoc(), sourcesJar = true))
-    publishToMavenCentral(host = SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+
+    coordinates(
+        groupId = "dev.supersam.runfig",
+        artifactId = "runfig-gradle-plugin",
+        version = "0.0.1"
+    )
+
+    pom {
+        name.set("Runfig Gradle Plugin")
+        description.set("Replace build config fields with shared preference values to be able to change them at runtime.")
+        url.set("https://github.com/esmaeelnabil/runfig")
+
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                distribution.set("repo")
+            }
+        }
+
+        developers {
+            developer {
+                id.set("esmaeelnabil")
+                name.set("Esmaeel Moustafa")
+                email.set("esmaeel.nabil.m@gmail.com")
+                url.set("https://supersam.dev")
+            }
+        }
+
+        scm {
+            url.set("https://github.com/esmaeelnabil/runfig")
+            connection.set("scm:git:git://github.com/esmaeelnabil/runfig.git")
+            developerConnection.set("scm:git:git@github.com:esmaeelnabil/runfig.git")
+        }
+    }
+
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+    signAllPublications()
 }
