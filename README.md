@@ -4,8 +4,6 @@ Runtime Configurations control for Android applications during development and t
 
 #### Usage (Library + Gradle Plugin)
 
-- add mavenLocal() to your repositories in your `build.gradle` file
-
 - apply the plugin in your `build.gradle.kts` file
 
 ```gradle
