@@ -18,7 +18,7 @@
         <!-- FileProvider for sharing crash logs -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.debugoverlay.provider"
+            android:authorities="${applicationId}.runfig.debugoverlay.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

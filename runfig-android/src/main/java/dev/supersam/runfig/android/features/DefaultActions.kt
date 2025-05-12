@@ -196,7 +196,7 @@ internal abstract class ExportFileAction(private val fileExtension: String) : De
 
 internal object DefaultActions {
 
-    private const val FILE_PROVIDER_AUTHORITY = ".debugoverlay.provider"
+    private const val FILE_PROVIDER_AUTHORITY = ".runfig.debugoverlay.provider"
 
 
     fun registerDefaults() {
