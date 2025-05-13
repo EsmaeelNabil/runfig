@@ -21,7 +21,7 @@ Runtime Configurations control for Android applications during development and t
 
 ```gradle
     dependencies {
-        implementation("com.github.runfig:runfig-android:0.0.2")
+        implementation("dev.supersam.runfig:runfig-android:0.0.2")
     }
 ```
 
