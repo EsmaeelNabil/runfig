@@ -653,15 +653,6 @@ fun DebugActionButton(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icon based on action type
-            if (isDestructive) {
-                Icon(
-                    imageVector = Icons.Outlined.Warning,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(end = 16.dp)
-                )
-            }
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -707,7 +698,7 @@ fun DebugActionButton(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 } else {
-                    Text(if (isDestructive) "Execute with Caution" else "Execute")
+                    Text("Execute")
                 }
             }
         }

@@ -40,7 +40,7 @@ mavenPublishing {
     coordinates(
         groupId = "dev.supersam.runfig",
         artifactId = "runfig-gradle-plugin",
-        version = "0.0.2"
+        version = "0.0.3"
     )
 
     pom {
