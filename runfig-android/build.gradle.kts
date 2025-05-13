@@ -83,7 +83,7 @@ mavenPublishing {
     coordinates(
         groupId = "dev.supersam.runfig",
         artifactId = "runfig-android",
-        version = "0.0.2"
+        version = "0.0.3"
     )
 
     pom {
