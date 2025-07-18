@@ -29,7 +29,7 @@ object RunfigCache {
         val prefs = sharedPreferences ?: return defaultValue
         if (prefs.contains(key)) return prefs.getBoolean(key, defaultValue)
 
-        prefs.edit() { putBoolean(key, defaultValue) }
+        prefs.edit { putBoolean(key, defaultValue) }
         return defaultValue
     }
 
@@ -38,7 +38,7 @@ object RunfigCache {
         val prefs = sharedPreferences ?: return defaultValue
         if (prefs.contains(key)) return prefs.getInt(key, defaultValue)
 
-        prefs.edit() { putInt(key, defaultValue) }
+        prefs.edit { putInt(key, defaultValue) }
         return defaultValue
     }
 
@@ -47,7 +47,7 @@ object RunfigCache {
         val prefs = sharedPreferences ?: return defaultValue
         if (prefs.contains(key)) return prefs.getLong(key, defaultValue)
 
-        prefs.edit() { putLong(key, defaultValue) }
+        prefs.edit { putLong(key, defaultValue) }
         return defaultValue
     }
 
@@ -56,7 +56,7 @@ object RunfigCache {
         val prefs = sharedPreferences ?: return defaultValue
         if (prefs.contains(key)) return prefs.getFloat(key, defaultValue)
 
-        prefs.edit() { putFloat(key, defaultValue) }
+        prefs.edit { putFloat(key, defaultValue) }
         return defaultValue
     }
 
@@ -65,7 +65,7 @@ object RunfigCache {
         val prefs = sharedPreferences ?: return defaultValue
         if (prefs.contains(key)) return prefs.getString(key, defaultValue) ?: defaultValue
 
-        prefs.edit() { putString(key, defaultValue) }
+        prefs.edit { putString(key, defaultValue) }
         return defaultValue
     }
 

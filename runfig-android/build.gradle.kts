@@ -1,5 +1,4 @@
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
-import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
     alias(libs.plugins.android.library)
@@ -10,7 +9,7 @@ plugins {
 
 android {
     namespace = "dev.supersam.runfig.android"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 24
@@ -32,13 +31,19 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-        freeCompilerArgs = freeCompilerArgs + listOf(
-            "-Xskip-metadata-version-check",
-            "-Xallow-incompatible-classifications"
-        )
+
+    kotlin {
+        jvmToolchain(11)
+        compilerOptions {
+            freeCompilerArgs.addAll(
+                listOf(
+                    "-Xskip-metadata-version-check",
+                    "-Xallow-incompatible-classifications"
+                )
+            )
+        }
     }
+
     buildFeatures {
         compose = true
     }
@@ -83,7 +88,7 @@ mavenPublishing {
     coordinates(
         groupId = "dev.supersam.runfig",
         artifactId = "runfig-android",
-        version = "0.0.3"
+        version = "0.0.5"
     )
 
     pom {
@@ -115,6 +120,6 @@ mavenPublishing {
         }
     }
 
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+    publishToMavenCentral(automaticRelease = true)
     signAllPublications()
 }

@@ -44,9 +44,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.content.edit
 import dev.supersam.runfig.android.api.DebugInfoProvider
 import java.io.File
 
@@ -260,7 +260,7 @@ internal class SharedPreferencesInfoProvider : DebugInfoProvider {
 
     private fun loadSharedPreferences(
         context: Context, fileName: String
-    ): Map<String, Any?> { /* ... unchanged ... */
+    ): Map<String, Any?> {
         return try {
             val prefs = context.getSharedPreferences(fileName, Context.MODE_PRIVATE)
             prefs.all.toSortedMap()
@@ -272,10 +272,11 @@ internal class SharedPreferencesInfoProvider : DebugInfoProvider {
 
     private fun removeSharedPrefKey(
         context: Context, fileName: String, key: String
-    ) { /* ... unchanged ... */
+    ) {
         try {
-            context.getSharedPreferences(fileName, Context.MODE_PRIVATE).edit().remove(key)
-                .apply()
+            context.getSharedPreferences(fileName, Context.MODE_PRIVATE).edit {
+                remove(key)
+            }
         } catch (e: Exception) {
             Log.e("SharedPrefsProvider", "Error removing key '$key' from '$fileName'", e)
         }
@@ -286,19 +287,19 @@ internal class SharedPreferencesInfoProvider : DebugInfoProvider {
         context: Context, fileName: String, key: String, value: String, type: PrefValueType
     ) {
         try {
-            val editor = context.getSharedPreferences(fileName, Context.MODE_PRIVATE).edit()
-            when (type) {
-                PrefValueType.STRING -> editor.putString(key, value)
-                PrefValueType.BOOLEAN -> editor.putBoolean(
-                    key, value.toBooleanStrictOrNull() ?: false
-                )
+            context.getSharedPreferences(fileName, Context.MODE_PRIVATE).edit {
+                when (type) {
+                    PrefValueType.STRING -> putString(key, value)
+                    PrefValueType.BOOLEAN -> putBoolean(
+                        key, value.toBooleanStrictOrNull() ?: false
+                    )
 
-                PrefValueType.INT -> editor.putInt(key, value.toIntOrNull() ?: 0)
-                PrefValueType.LONG -> editor.putLong(key, value.toLongOrNull() ?: 0L)
-                PrefValueType.FLOAT -> editor.putFloat(key, value.toFloatOrNull() ?: 0f)
+                    PrefValueType.INT -> putInt(key, value.toIntOrNull() ?: 0)
+                    PrefValueType.LONG -> putLong(key, value.toLongOrNull() ?: 0L)
+                    PrefValueType.FLOAT -> putFloat(key, value.toFloatOrNull() ?: 0f)
 
+                }
             }
-            editor.apply()
         } catch (e: Exception) {
             Log.e("SharedPrefsProvider", "Error saving key '$key' ($type) to '$fileName'", e)
 
@@ -319,14 +320,8 @@ internal class SharedPreferencesInfoProvider : DebugInfoProvider {
         onDismiss: () -> Unit,
         onSave: (key: String, value: String, type: PrefValueType) -> Unit
     ) {
-        var keyState by rememberSaveable(prefKey) { mutableStateOf(TextFieldValue(prefKey)) }
-        var valueState by rememberSaveable(initialValue) {
-            mutableStateOf(
-                TextFieldValue(
-                    initialValue
-                )
-            )
-        }
+        var keyState by rememberSaveable(prefKey) { mutableStateOf(prefKey) }
+        var valueState by rememberSaveable(initialValue) { mutableStateOf(initialValue) }
         var selectedType by rememberSaveable { mutableStateOf(PrefValueType.STRING) }
         var typeMenuExpanded by remember { mutableStateOf(false) }
 
@@ -369,7 +364,7 @@ internal class SharedPreferencesInfoProvider : DebugInfoProvider {
                         ExposedDropdownMenu(
                             expanded = typeMenuExpanded,
                             onDismissRequest = { typeMenuExpanded = false }) {
-                            PrefValueType.values().forEach { type ->
+                            PrefValueType.entries.forEach { type ->
                                 DropdownMenuItem(text = { Text(type.name) }, onClick = {
                                     selectedType = type
                                     typeMenuExpanded = false
@@ -385,7 +380,7 @@ internal class SharedPreferencesInfoProvider : DebugInfoProvider {
                 }
             },
             confirmButton = {
-                Button(onClick = { onSave(keyState.text, valueState.text, selectedType) }) {
+                Button(onClick = { onSave(keyState, valueState, selectedType) }) {
                     Text("Save")
                 }
             },

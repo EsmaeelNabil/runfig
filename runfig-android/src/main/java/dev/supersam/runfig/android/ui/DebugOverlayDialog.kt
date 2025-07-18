@@ -746,7 +746,7 @@ private fun executeAction(
 ) {
     setLoading(true)
     scope.launch {
-        var message: String = ""
+        var message = ""
         try {
             action.onAction(context)
             message = "${action.title} executed successfully"
