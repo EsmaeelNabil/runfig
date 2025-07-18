@@ -9,6 +9,7 @@ import android.widget.Toast
 import dev.supersam.runfig.android.api.DebugAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import androidx.core.net.toUri
 
 internal class NavigateToStoreAction : DebugAction {
     override val title: String = "Open Store Listing"
@@ -21,7 +22,7 @@ internal class NavigateToStoreAction : DebugAction {
         try {
             context.startActivity(
                 Intent(
-                    Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")
+                    Intent.ACTION_VIEW, "market://details?id=$packageName".toUri()
                 ).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 })
@@ -30,7 +31,7 @@ internal class NavigateToStoreAction : DebugAction {
                 context.startActivity(
                     Intent(
                         Intent.ACTION_VIEW,
-                        Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
+                        "https://play.google.com/store/apps/details?id=$packageName".toUri()
                     ).apply {
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     })

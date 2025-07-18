@@ -335,13 +335,9 @@ internal object DebugOverlayController : Application.ActivityLifecycleCallbacks 
 
     private class TouchInterceptorCallback(
         private val activity: Activity,
-        internal val originalCallback: Window.Callback, // Assumed not null based on check
+        val originalCallback: Window.Callback, // Assumed not null based on check
         private val onTouchEvent: (MotionEvent) -> Unit
     ) : Window.Callback {
-
-        init {
-            // Log.v(TAG, "TouchInterceptorCallback created for ${activity.localClassName}")
-        }
 
         override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
             // Allow touch events to pass through if the overlay is visible

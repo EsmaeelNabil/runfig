@@ -8,7 +8,8 @@ import android.os.StatFs
 import android.util.DisplayMetrics
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Divider
+import androidx.compose.material3.DividerDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -128,7 +129,7 @@ internal class DeviceInfoProvider(context: Context) : DebugInfoProvider {
         DefaultInfoProviders.InfoRow("Supported ABIs:", supportedAbis.joinToString(", "))
 
         Spacer(Modifier.Companion.height(10.dp))
-        Divider()
+        HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
         Spacer(Modifier.Companion.height(10.dp))
 
 
@@ -140,7 +141,7 @@ internal class DeviceInfoProvider(context: Context) : DebugInfoProvider {
         getDisplayInfo(context).forEach { (label, value) -> DefaultInfoProviders.InfoRow(label, value) }
 
         Spacer(Modifier.Companion.height(10.dp))
-        Divider()
+        HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
         Spacer(Modifier.Companion.height(10.dp))
 
         Text(
@@ -151,7 +152,7 @@ internal class DeviceInfoProvider(context: Context) : DebugInfoProvider {
         getMemoryInfo(context).forEach { (label, value) -> DefaultInfoProviders.InfoRow(label, value) }
 
         Spacer(Modifier.Companion.height(10.dp))
-        Divider()
+        HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
         Spacer(Modifier.Companion.height(10.dp))
 
         Text(

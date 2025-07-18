@@ -1,6 +1,6 @@
 import com.vanniktech.maven.publish.GradlePlugin
 import com.vanniktech.maven.publish.JavadocJar
-import com.vanniktech.maven.publish.SonatypeHost
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -34,13 +34,25 @@ kotlin {
     jvmToolchain(17)
 }
 
+// Configure Java compilation options
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(17)
+}
+
+// Configure Kotlin compilation options
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+    }
+}
+
 mavenPublishing {
     configure(GradlePlugin(javadocJar = JavadocJar.Javadoc(), sourcesJar = true))
 
     coordinates(
         groupId = "dev.supersam.runfig",
         artifactId = "runfig-gradle-plugin",
-        version = "0.0.3"
+        version = "0.0.5"
     )
 
     pom {
@@ -72,6 +84,6 @@ mavenPublishing {
         }
     }
 
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+    publishToMavenCentral(automaticRelease = true)
     signAllPublications()
 }

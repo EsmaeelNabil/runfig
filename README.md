@@ -8,7 +8,7 @@ Runtime Configurations control for Android applications during development and t
 
 ```gradle
     plugins {
-        alias("dev.supersam.runfig.gradle") version("0.0.2")
+        alias("dev.supersam.runfig.gradle") version("0.0.5")
     }
 
 
@@ -21,7 +21,7 @@ Runtime Configurations control for Android applications during development and t
 
 ```gradle
     dependencies {
-        implementation("dev.supersam.runfig:runfig-android:0.0.2")
+        implementation("dev.supersam.runfig:runfig-android:0.0.5")
     }
 ```
 
