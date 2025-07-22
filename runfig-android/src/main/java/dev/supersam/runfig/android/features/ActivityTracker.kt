@@ -23,8 +23,4 @@ object ActivityTracker {
     fun getLog(): List<String> {
         return synchronized(logMessages) { logMessages.toList() }
     }
-
-    fun register(context: Context) {
-        Log.w("ActivityTracker", "ActivityTracker.register() not fully implemented!")
-    }
 }

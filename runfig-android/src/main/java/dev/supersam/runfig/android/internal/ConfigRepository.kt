@@ -45,13 +45,10 @@ internal class ConfigRepository(private val application: Application) {
      * @param config The configuration to save
      */
     fun saveConfig(config: DebugOverlayConfig) {
-        prefs.edit {
-            putBoolean("enabled", config.isEnabled)
-            putLong("long_press_delay", config.longPressDelayMs)
-            putStringSet("enabled_providers", config.enabledProviders)
-            putStringSet("enabled_actions", config.enabledActions)
-            putString("theme", config.theme.name)
-        }
+        if (prefs.contains("long_press_delay").not())
+            prefs.edit {
+                putLong("long_press_delay", config.longPressDelayMs)
+            }
     }
 
     /**
@@ -61,17 +58,7 @@ internal class ConfigRepository(private val application: Application) {
      */
     private fun loadOrCreateDefaultConfig(): DebugOverlayConfig {
         return DebugOverlayConfig(
-            isEnabled = prefs.getBoolean("enabled", true),
             longPressDelayMs = prefs.getLong("long_press_delay", 2000),
-            enabledProviders = prefs.getStringSet("enabled_providers", null)?.toSet()
-                ?: getDefaultProviders(),
-            enabledActions = prefs.getStringSet("enabled_actions", null)?.toSet()
-                ?: getDefaultActions(),
-            theme = try {
-                OverlayTheme.valueOf(prefs.getString("theme", null) ?: "SYSTEM")
-            } catch (e: IllegalArgumentException) {
-                OverlayTheme.SYSTEM
-            }
         )
     }
 
@@ -143,19 +130,10 @@ internal class ConfigRepository(private val application: Application) {
 /**
  * Configuration data class for the debug overlay.
  *
- * @property isEnabled Whether the overlay is enabled
+
  * @property longPressDelayMs Delay in milliseconds for long press activation
- * @property enabledProviders Set of enabled provider identifiers
- * @property enabledActions Set of enabled action identifiers
- * @property theme Theme to use for the overlay
  */
-internal data class DebugOverlayConfig(
-    val isEnabled: Boolean = true,
-    val longPressDelayMs: Long = 2000,
-    val enabledProviders: Set<String> = setOf("app_info", "device_info"),
-    val enabledActions: Set<String> = setOf("clear_cache", "restart_app"),
-    val theme: OverlayTheme = OverlayTheme.SYSTEM
-)
+internal data class DebugOverlayConfig(val longPressDelayMs: Long = 2000)
 
 /**
  * Available themes for the debug overlay.

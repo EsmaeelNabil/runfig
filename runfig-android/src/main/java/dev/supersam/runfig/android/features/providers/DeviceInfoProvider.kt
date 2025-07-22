@@ -17,8 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.supersam.runfig.android.api.DebugInfoProvider
+import dev.supersam.runfig.android.features.actions.InfoRow
 
-internal class DeviceInfoProvider(context: Context) : DebugInfoProvider {
+internal class DeviceInfoProvider : DebugInfoProvider {
 
     override val title: String = "Device"
 
@@ -116,17 +117,17 @@ internal class DeviceInfoProvider(context: Context) : DebugInfoProvider {
     @Composable
     override fun Content(context: Context) {
 
-        DefaultInfoProviders.InfoRow("Model:", model)
-        DefaultInfoProviders.InfoRow("Manufacturer:", manufacturer)
-        DefaultInfoProviders.InfoRow("Android Version:", androidVersion)
-        DefaultInfoProviders.InfoRow("SDK Level:", sdkLevel.toString())
-        DefaultInfoProviders.InfoRow("Build ID:", buildId)
-        DefaultInfoProviders.InfoRow("Fingerprint:", fingerprint)
-        DefaultInfoProviders.InfoRow("Hardware:", hardware)
-        DefaultInfoProviders.InfoRow("Board:", board)
-        DefaultInfoProviders.InfoRow("Bootloader:", bootloader)
-        DefaultInfoProviders.InfoRow("Processors:", processorCount.toString())
-        DefaultInfoProviders.InfoRow("Supported ABIs:", supportedAbis.joinToString(", "))
+        InfoRow("Model:", model)
+        InfoRow("Manufacturer:", manufacturer)
+        InfoRow("Android Version:", androidVersion)
+        InfoRow("SDK Level:", sdkLevel.toString())
+        InfoRow("Build ID:", buildId)
+        InfoRow("Fingerprint:", fingerprint)
+        InfoRow("Hardware:", hardware)
+        InfoRow("Board:", board)
+        InfoRow("Bootloader:", bootloader)
+        InfoRow("Processors:", processorCount.toString())
+        InfoRow("Supported ABIs:", supportedAbis.joinToString(", "))
 
         Spacer(Modifier.Companion.height(10.dp))
         HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
@@ -138,7 +139,7 @@ internal class DeviceInfoProvider(context: Context) : DebugInfoProvider {
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Companion.Bold
         )
-        getDisplayInfo(context).forEach { (label, value) -> DefaultInfoProviders.InfoRow(label, value) }
+        getDisplayInfo(context).forEach { (label, value) -> InfoRow(label, value) }
 
         Spacer(Modifier.Companion.height(10.dp))
         HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
@@ -149,7 +150,7 @@ internal class DeviceInfoProvider(context: Context) : DebugInfoProvider {
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Companion.Bold
         )
-        getMemoryInfo(context).forEach { (label, value) -> DefaultInfoProviders.InfoRow(label, value) }
+        getMemoryInfo(context).forEach { (label, value) -> InfoRow(label, value) }
 
         Spacer(Modifier.Companion.height(10.dp))
         HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
@@ -160,6 +161,6 @@ internal class DeviceInfoProvider(context: Context) : DebugInfoProvider {
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Companion.Bold
         )
-        getStorageInfo().forEach { (label, value) -> DefaultInfoProviders.InfoRow(label, value) }
+        getStorageInfo().forEach { (label, value) -> InfoRow(label, value) }
     }
 }

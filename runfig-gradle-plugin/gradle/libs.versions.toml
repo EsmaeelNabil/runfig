@@ -1,0 +1,12 @@
+[versions]
+gradle = "8.11.1"
+kotlin = "2.2.0"
+mavenPublish = "0.34.0"
+
+[libraries]
+gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
+junit = { module = "junit:junit", version = "4.13.2" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }

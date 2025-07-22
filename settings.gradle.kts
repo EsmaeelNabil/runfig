@@ -11,6 +11,8 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+
+    includeBuild("runfig-gradle-plugin")
 }
 
 plugins {
@@ -28,5 +30,5 @@ dependencyResolutionManagement {
 rootProject.name = "runfig"
 include(
     ":runfig-android",
-    ":runfig-gradle-plugin"
+    ":sample"
 )

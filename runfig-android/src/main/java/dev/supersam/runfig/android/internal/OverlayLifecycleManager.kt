@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import dev.supersam.runfig.android.features.ActivityTracker
 import java.lang.ref.WeakReference
 
 /**
@@ -170,39 +171,45 @@ internal class OverlayLifecycleManager(
  * for all activities in the app.
  */
 internal class DebugActivityCallbacks(
-    private val container: DebugOverlayContainer
+    private val dependencyContainer: DebugOverlayDependenciesContainer
 ) : Application.ActivityLifecycleCallbacks {
     
     /**
      * Lazy reference to the lifecycle manager to avoid creating it unnecessarily.
      */
-    private val lifecycleManager by lazy { container.lifecycleManager() }
+    private val lifecycleManager by lazy { dependencyContainer.lifecycleManager() }
     
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         lifecycleManager.onActivityCreated(activity)
+        ActivityTracker.log(activity.localClassName,"onActivityCreated")
     }
     
     override fun onActivityStarted(activity: Activity) {
         lifecycleManager.onActivityStarted(activity)
+        ActivityTracker.log(activity.localClassName,"onActivityStarted")
     }
     
     override fun onActivityResumed(activity: Activity) {
         lifecycleManager.onActivityResumed(activity)
+        ActivityTracker.log(activity.localClassName,"onActivityResumed")
     }
     
     override fun onActivityPaused(activity: Activity) {
         lifecycleManager.onActivityPaused(activity)
+        ActivityTracker.log(activity.localClassName,"onActivityPaused")
     }
     
     override fun onActivityStopped(activity: Activity) {
         lifecycleManager.onActivityStopped(activity)
+        ActivityTracker.log(activity.localClassName,"onActivityStopped")
     }
     
     override fun onActivityDestroyed(activity: Activity) {
         lifecycleManager.onActivityDestroyed(activity)
+        ActivityTracker.log(activity.localClassName,"onActivityDestroyed")
     }
     
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
-        // No action needed for overlay
+        ActivityTracker.log(activity.localClassName,"onActivitySaveInstanceState : $outState")
     }
 }

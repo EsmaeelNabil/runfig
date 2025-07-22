@@ -109,7 +109,7 @@ internal class SharedPreferencesInfoProvider : DebugInfoProvider {
             }
 
 
-            LazyColumn(modifier = Modifier.Companion.heightIn(max = 100.dp)) {
+            LazyColumn(modifier = Modifier.Companion.heightIn(max = 400.dp)) {
                 items(allPrefFiles) { fileName ->
                     Row(
                         verticalAlignment = Alignment.Companion.CenterVertically,

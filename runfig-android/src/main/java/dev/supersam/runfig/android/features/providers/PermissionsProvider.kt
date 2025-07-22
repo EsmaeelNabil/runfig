@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.supersam.runfig.android.api.DebugInfoProvider
+import dev.supersam.runfig.android.features.actions.InfoRow
 
 internal class PermissionsProvider(context: Context) : DebugInfoProvider {
     override val title: String = "App Permissions"
@@ -54,7 +55,7 @@ internal class PermissionsProvider(context: Context) : DebugInfoProvider {
 
                     else -> "Denied / Not Granted"
                 }
-                DefaultInfoProviders.InfoRow(permission.substringAfterLast('.'), status)
+                InfoRow(permission.substringAfterLast('.'), status)
                 Spacer(Modifier.Companion.height(4.dp))
             }
         }

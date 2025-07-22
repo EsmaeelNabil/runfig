@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.supersam.runfig.android.api.DebugInfoProvider
+import dev.supersam.runfig.android.features.actions.InfoRow
 
 internal class NetworkInfoProvider : DebugInfoProvider {
     override val title: String = "Network"

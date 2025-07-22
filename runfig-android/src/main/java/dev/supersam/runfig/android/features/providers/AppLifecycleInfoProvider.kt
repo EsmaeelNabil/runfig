@@ -48,9 +48,5 @@ internal class AppLifecycleInfoProvider : DebugInfoProvider {
             }
         }
         Spacer(modifier = Modifier.Companion.height(8.dp))
-        Text(
-            "Requires ActivityTracker to be implemented and registered.",
-            style = MaterialTheme.typography.labelSmall
-        )
     }
 }

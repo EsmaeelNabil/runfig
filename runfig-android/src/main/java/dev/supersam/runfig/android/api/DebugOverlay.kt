@@ -41,7 +41,7 @@ object DebugOverlay {
      * @param provider The debug info provider to add
      */
     fun addInfoProvider(provider: DebugInfoProvider) {
-        val container = DebugOverlayManager.getContainer()
+        val container = DebugOverlayManager.getDependenciesContainer()
         container?.registry()?.addProvider(provider)
     }
 
@@ -54,7 +54,7 @@ object DebugOverlay {
      * @param action The debug action to add
      */
     fun addAction(action: DebugAction) {
-        val container = DebugOverlayManager.getContainer()
+        val container = DebugOverlayManager.getDependenciesContainer()
         container?.registry()?.addAction(action)
     }
 }

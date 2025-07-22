@@ -87,7 +87,7 @@ internal class LogcatReaderProvider : DebugInfoProvider {
         val scrollState = rememberLazyListState()
         LazyColumn(
             state = scrollState, modifier = Modifier.Companion
-                .heightIn(max = 300.dp)
+                .heightIn(max = 600.dp)
                 .fillMaxWidth()
         ) {
             items(logs) { logLine ->

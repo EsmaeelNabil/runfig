@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.PackageInfoCompat
 import dev.supersam.runfig.android.api.DebugInfoProvider
+import dev.supersam.runfig.android.features.actions.InfoRow
 
 internal class AppInfoProvider(context: Context) : DebugInfoProvider {
 
@@ -60,18 +61,18 @@ internal class AppInfoProvider(context: Context) : DebugInfoProvider {
     @Composable
     override fun Content(context: Context) {
 
-        DefaultInfoProviders.InfoRow("App Name:", appName)
-        DefaultInfoProviders.InfoRow("Package:", packageName)
-        DefaultInfoProviders.InfoRow("Version Name:", versionName)
-        DefaultInfoProviders.InfoRow("Version Code:", versionCode.toString())
-        DefaultInfoProviders.InfoRow("Target SDK:", targetSdk.takeIf { it > 0 }?.toString() ?: "N/A")
-        DefaultInfoProviders.InfoRow("Min SDK:", minSdk.takeIf { it > 0 }?.toString() ?: "N/A")
-        DefaultInfoProviders.InfoRow("Debuggable:", isDebuggable.toString())
-        DefaultInfoProviders.InfoRow("Installer:", installerPackage ?: "N/A")
-        DefaultInfoProviders.InfoRow("Installed:", firstInstallTime)
-        DefaultInfoProviders.InfoRow("Updated:", lastUpdateTime)
-        DefaultInfoProviders.InfoRow("Data Dir:", dataDir)
-        DefaultInfoProviders.InfoRow("Process Name:", processName)
+        InfoRow("App Name:", appName)
+        InfoRow("Package:", packageName)
+        InfoRow("Version Name:", versionName)
+        InfoRow("Version Code:", versionCode.toString())
+        InfoRow("Target SDK:", targetSdk.takeIf { it > 0 }?.toString() ?: "N/A")
+        InfoRow("Min SDK:", minSdk.takeIf { it > 0 }?.toString() ?: "N/A")
+        InfoRow("Debuggable:", isDebuggable.toString())
+        InfoRow("Installer:", installerPackage ?: "N/A")
+        InfoRow("Installed:", firstInstallTime)
+        InfoRow("Updated:", lastUpdateTime)
+        InfoRow("Data Dir:", dataDir)
+        InfoRow("Process Name:", processName)
 
         Spacer(Modifier.Companion.height(8.dp))
 

@@ -1,4 +1,4 @@
-package dev.supersam.runfig.android.features
+package dev.supersam.runfig.android.features.actions
 
 import android.content.Context
 import android.os.Process

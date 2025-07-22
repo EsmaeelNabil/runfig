@@ -3,16 +3,16 @@ import com.vanniktech.maven.publish.JavadocJar
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
+    alias(deps.plugins.kotlin.jvm)
     `java-gradle-plugin`
-    alias(libs.plugins.mavenPublish)
+    alias(deps.plugins.mavenPublish)
 }
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation(libs.gradle)
+    implementation(deps.gradle)
     testImplementation(kotlin("test"))
-    testImplementation(libs.junit)
+    testImplementation(deps.junit)
 }
 
 gradlePlugin {

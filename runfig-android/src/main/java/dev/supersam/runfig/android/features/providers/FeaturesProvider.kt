@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.supersam.runfig.android.api.DebugInfoProvider
+import dev.supersam.runfig.android.features.actions.InfoRow
 
 internal class FeaturesProvider(context: Context) : DebugInfoProvider {
     override val title: String = "Required Features"
@@ -41,7 +42,7 @@ internal class FeaturesProvider(context: Context) : DebugInfoProvider {
                 val featureName = feature.name ?: "Unnamed Feature"
                 val required = (feature.flags and FeatureInfo.FLAG_REQUIRED) != 0
                 val version = if (feature.version > 0) " (v${feature.version})" else ""
-                DefaultInfoProviders.InfoRow(featureName, "Required: $required$version")
+                InfoRow(featureName, "Required: $required$version")
                 Spacer(Modifier.Companion.height(4.dp))
             }
         }
