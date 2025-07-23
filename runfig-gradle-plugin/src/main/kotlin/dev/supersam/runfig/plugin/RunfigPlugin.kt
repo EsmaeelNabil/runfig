@@ -1,8 +1,7 @@
 package dev.supersam.runfig.plugin
 
-import com.android.build.gradle.AppExtension
-import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.api.BaseVariant
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.internal.extensions.stdlib.capitalized
@@ -13,6 +12,11 @@ import java.io.File
  *
  * This plugin replaces static final values in BuildConfig.java with calls to RunfigCache.get(),
  * allowing these values to be modified at runtime through SharedPreferences without recompilation.
+ *
+ * ## Requirements
+ * - Android Gradle Plugin 7.0+ (uses modern Variant API)
+ * - Gradle 7.0+
+ * - Kotlin/Java projects with Android BuildConfig generation enabled
  *
  * ## Supported Project Types
  * - Android applications (`com.android.application`)
@@ -31,6 +35,8 @@ import java.io.File
  *     fieldPrefix = "app_"
  * }
  * ```
+ *
+ * @since 1.0.0 Uses modern Android Gradle Plugin Variant API (no BaseVariant deprecation warnings)
  */
 class RunfigPlugin : Plugin<Project> {
     
@@ -53,28 +59,82 @@ class RunfigPlugin : Plugin<Project> {
         
         val extension = project.extensions.create("runfig", RunfigExtension::class.java)
         
+        // Set up Android tasks immediately (modern Variant API must be called during plugin apply)
         setupAndroidTasks(project, extension)
-        setupFallbackTask(project, extension)
+        
+        // Validate dependencies and setup fallback after evaluation
+        project.afterEvaluate {
+            if (!validateDependencies(project)) {
+                // If validation fails, log warning but tasks are already configured
+                project.logger.warn("   Note: Transform tasks have been created but will not execute correctly without the dependency.")
+            }
+            setupFallbackTaskAfterEvaluation(project, extension)
+        }
     }
 
     /**
-     * Sets up transformation tasks for Android application and library projects.
+     * Validates that the required runfig-android dependency is present.
+     * 
+     * @param project The Gradle project to validate
+     * @return true if dependencies are valid, false if missing required dependencies
+     */
+    private fun validateDependencies(project: Project): Boolean {
+        val configurations = project.configurations
+        val requiredDependency = "dev.supersam.runfig:runfig-android"
+        val runfigAndroidProjectName = "runfig-android"
+        
+        // Check all configurations for the runfig-android dependency (external or project)
+        val hasRunfigAndroid = configurations.any { config ->
+            config.dependencies.any { dependency ->
+                when {
+                    // Check for external dependency
+                    "${dependency.group}:${dependency.name}" == requiredDependency -> true
+                    // Check for project dependency  
+                    dependency.name == runfigAndroidProjectName -> true
+                    // Check for project dependency with full path
+                    dependency.name.endsWith(":$runfigAndroidProjectName") -> true
+                    else -> false
+                }
+            }
+        }
+        
+        if (!hasRunfigAndroid) {
+            project.logger.warn("⚠️  Runfig plugin is applied but '$requiredDependency' dependency is missing!")
+            project.logger.warn("   The transformed BuildConfig files require RunfigCache class from runfig-android library.")
+            project.logger.warn("   Add this to your dependencies:")
+            project.logger.warn("   implementation(\"$requiredDependency:VERSION\") // For external dependency")
+            project.logger.warn("   OR")
+            project.logger.warn("   implementation(project(\":runfig-android\"))  // For project dependency")
+            project.logger.warn("   Skipping Runfig transformations until dependency is added.")
+            return false
+        }
+        
+        project.logger.info("✅ Runfig dependency validation passed - runfig-android library found")
+        return true
+    }
+
+    /**
+     * Sets up transformation tasks for Android application and library projects using modern Variant API.
      */
     private fun setupAndroidTasks(project: Project, extension: RunfigExtension) {
         project.plugins.withId("com.android.application") {
-            val android = project.extensions.getByType(AppExtension::class.java)
-            android.applicationVariants.all { variant ->
-                if (shouldTransformVariant(variant, extension)) {
-                    createTransformTask(project, variant, extension)
+            val androidComponents = project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
+            androidComponents.onVariants { variant ->
+                val variantName = variant.name
+                val buildTypeName = variant.buildType ?: "unknown"
+                if (shouldTransformVariant(variantName, buildTypeName, extension)) {
+                    createTransformTask(project, variantName, buildTypeName, extension)
                 }
             }
         }
 
         project.plugins.withId("com.android.library") {
-            val android = project.extensions.getByType(LibraryExtension::class.java)
-            android.libraryVariants.all { variant ->
-                if (shouldTransformVariant(variant, extension)) {
-                    createTransformTask(project, variant, extension)
+            val androidComponents = project.extensions.getByType(LibraryAndroidComponentsExtension::class.java)
+            androidComponents.onVariants { variant ->
+                val variantName = variant.name
+                val buildTypeName = variant.buildType ?: "unknown"
+                if (shouldTransformVariant(variantName, buildTypeName, extension)) {
+                    createTransformTask(project, variantName, buildTypeName, extension)
                 }
             }
         }
@@ -83,41 +143,48 @@ class RunfigPlugin : Plugin<Project> {
     /**
      * Determines whether a build variant should be transformed.
      *
-     * @param variant The Android build variant
+     * @param variantName The name of the build variant
+     * @param buildTypeName The build type name
      * @param extension The plugin configuration
      * @return true if the variant should be transformed
      */
-    private fun shouldTransformVariant(variant: BaseVariant, extension: RunfigExtension): Boolean {
+    private fun shouldTransformVariant(variantName: String, buildTypeName: String, extension: RunfigExtension): Boolean {
         return if (extension.variantNames.isEmpty()) {
-            variant.buildType.isDebuggable // Default: only debug variants
+            // Default: only debug variants (assuming debug builds are debuggable)
+            buildTypeName.equals("debug", ignoreCase = true)
         } else {
-            extension.variantNames.any { it.equals(variant.name, ignoreCase = true) }
+            extension.variantNames.any { it.equals(variantName, ignoreCase = true) }
         }
     }
 
     /**
      * Creates a Gradle task to transform BuildConfig files for a specific variant.
      */
-    private fun createTransformTask(project: Project, variant: BaseVariant, extension: RunfigExtension) {
-        val variantName = variant.name.capitalized()
-        val taskName = "transform${variantName}BuildConfig"
-        val buildConfigDir = project.layout.buildDirectory.dir("generated/source/buildConfig/${variant.name.lowercase()}")
+    private fun createTransformTask(project: Project, variantName: String, buildTypeName: String, extension: RunfigExtension) {
+        val capitalizedVariantName = variantName.capitalized()
+        val taskName = "transform${capitalizedVariantName}BuildConfig"
+        val buildConfigDir = project.layout.buildDirectory.dir("generated/source/buildConfig/${variantName.lowercase()}")
 
         project.tasks.register(taskName) { task ->
             task.group = "runfig"
-            task.description = "Transforms BuildConfig files for the ${variant.name} variant"
-            task.dependsOn("generate${variantName}BuildConfig")
+            task.description = "Transforms BuildConfig files for the $variantName variant"
+            task.dependsOn("generate${capitalizedVariantName}BuildConfig")
 
             // Configure incremental build support
             configureTaskInputsOutputs(task, buildConfigDir, extension)
 
             task.doLast {
-                transformBuildConfigFiles(project, buildConfigDir.get().asFile, extension)
+                // Double-check dependency at runtime
+                if (validateDependencies(project)) {
+                    transformBuildConfigFiles(project, buildConfigDir.get().asFile, extension)
+                } else {
+                    project.logger.warn("Skipping BuildConfig transformation for $variantName - runfig-android dependency missing")
+                }
             }
         }
 
         // Ensure compilation tasks depend on our transform
-        setupTaskDependencies(project, taskName, variantName, variant.name)
+        setupTaskDependencies(project, taskName, capitalizedVariantName, variantName)
     }
 
     /**
@@ -161,14 +228,12 @@ class RunfigPlugin : Plugin<Project> {
     /**
      * Creates a fallback task for projects that might not have standard Android variant tasks.
      */
-    private fun setupFallbackTask(project: Project, extension: RunfigExtension) {
-        project.afterEvaluate {
-            logConfiguration(project, extension)
-            validateConfiguration(project, extension)
-            
-            if (hasAndroidComponent(project)) {
-                createFallbackTask(project, extension)
-            }
+     private fun setupFallbackTaskAfterEvaluation(project: Project, extension: RunfigExtension) {
+        logConfiguration(project, extension)
+        validateConfiguration(project, extension)
+        
+        if (hasAndroidComponent(project)) {
+            createFallbackTask(project, extension)
         }
     }
 
@@ -184,39 +249,16 @@ class RunfigPlugin : Plugin<Project> {
     }
 
     /**
-     * Validates the plugin configuration and warns about potential issues.
+     * Validates the plugin configuration.
+     * 
+     * Note: With modern Variant API, detailed validation is simplified as the variants
+     * are processed directly when they're created by the Android Gradle Plugin.
      */
     private fun validateConfiguration(project: Project, extension: RunfigExtension) {
         if (extension.variantNames.isNotEmpty()) {
-            val availableVariants = collectAvailableVariants(project)
-            val unknownVariants = extension.variantNames.filter { variantName ->
-                availableVariants.none { it.equals(variantName, ignoreCase = true) }
-            }
-            
-            if (unknownVariants.isNotEmpty() && availableVariants.isNotEmpty()) {
-                project.logger.warn("Runfig: Unknown variant names: ${unknownVariants.joinToString()}")
-                project.logger.warn("Available variants: ${availableVariants.joinToString()}")
-            }
+            project.logger.info("Runfig configured for specific variants: ${extension.variantNames.joinToString()}")
+            project.logger.info("Note: Unknown variant names will be ignored during processing")
         }
-    }
-
-    /**
-     * Collects all available variant names from Android extensions.
-     */
-    private fun collectAvailableVariants(project: Project): List<String> {
-        val variants = mutableListOf<String>()
-        
-        project.plugins.withId("com.android.application") {
-            val android = project.extensions.getByType(AppExtension::class.java)
-            android.applicationVariants.all { variants.add(it.name) }
-        }
-        
-        project.plugins.withId("com.android.library") {
-            val android = project.extensions.getByType(LibraryExtension::class.java)
-            android.libraryVariants.all { variants.add(it.name) }
-        }
-        
-        return variants
     }
 
     /**
@@ -244,7 +286,12 @@ class RunfigPlugin : Plugin<Project> {
             configureTaskInputsOutputs(task, buildDir, extension)
             
             task.doLast {
-                transformAllBuildConfigs(project, extension)
+                // Double-check dependency at runtime
+                if (validateDependencies(project)) {
+                    transformAllBuildConfigs(project, extension)
+                } else {
+                    project.logger.warn("Skipping BuildConfig transformation (fallback) - runfig-android dependency missing")
+                }
             }
         }
         
