@@ -9,6 +9,7 @@ plugins {
 runfig {
     // Apply to debug variant
     variants("debug")
+    excludeFields("VERSION_CODE", "BUILD_TYPE") // Added BUILD_TYPE
 }
 
 android {

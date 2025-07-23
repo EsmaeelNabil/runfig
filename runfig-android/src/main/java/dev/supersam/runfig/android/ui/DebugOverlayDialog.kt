@@ -40,6 +40,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -138,11 +139,12 @@ class DebugOverlayDialog : DialogFragment() {
 }
 
 @Composable
-fun PreferencesEditor() {
+fun BuildParametersEditor() {
     var prefsMap by remember { mutableStateOf<Map<String, Any?>>(emptyMap()) }
     var editValues by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
     var searchQuery by remember { mutableStateOf("") }
     var showSavedIndicator by remember { mutableStateOf<String?>(null) }
+    var preferencesName by remember { mutableStateOf("runfig_prefs") }
     val coroutineScope = rememberCoroutineScope()
 
     // Define preference types for filtering
@@ -153,7 +155,7 @@ fun PreferencesEditor() {
     val lightGrayColor = Color(0xFFF2F2F2)
 
     LaunchedEffect(Unit) {
-        prefsMap = RunfigCache.getAll() ?: emptyMap()
+        prefsMap = RunfigCache.getAll(preferencesName) ?: emptyMap()
         editValues = prefsMap.mapValues { it.value.toString() }
     }
 
@@ -170,10 +172,35 @@ fun PreferencesEditor() {
                 .padding(16.dp)
         ) {
             Text(
-                text = "Preferences Editor",
+                text = "Build Parameters Editor",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            // Preferences file name field
+            OutlinedTextField(
+                value = preferencesName,
+                onValueChange = { newName ->
+                    preferencesName = newName
+                    // Reload preferences when name changes
+                    prefsMap = RunfigCache.getAll(newName) ?: emptyMap()
+                    editValues = prefsMap.mapValues { it.value.toString() }
+                },
+                label = { Text("Preferences File Name") },
+                placeholder = { Text("runfig_prefs") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                singleLine = true,
+                shape = RoundedCornerShape(8.dp),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Outlined.Settings,
+                        contentDescription = "Preferences file",
+                        tint = Color.Gray
+                    )
+                }
             )
 
             // Search bar
@@ -297,20 +324,21 @@ fun PreferencesEditor() {
                                     val newValue = editValues[key] ?: return@PreferenceItem
                                     when (value) {
                                         is Boolean -> RunfigCache.putBoolean(
+                                            preferencesName,
                                             key,
                                             newValue.toBoolean()
                                         )
 
-                                        is Int -> RunfigCache.putInt(key, newValue.toInt())
-                                        is Long -> RunfigCache.putLong(key, newValue.toLong())
-                                        is Float -> RunfigCache.putFloat(key, newValue.toFloat())
-                                        is String -> RunfigCache.putString(key, newValue)
+                                        is Int -> RunfigCache.putInt(preferencesName, key, newValue.toInt())
+                                        is Long -> RunfigCache.putLong(preferencesName, key, newValue.toLong())
+                                        is Float -> RunfigCache.putFloat(preferencesName, key, newValue.toFloat())
+                                        is String -> RunfigCache.putString(preferencesName, key, newValue)
                                     }
 
                                     // Refresh data
-                                    prefsMap = RunfigCache.getAll() ?: emptyMap()
+                                    prefsMap = RunfigCache.getAll(preferencesName) ?: emptyMap()
                                 } catch (e: Exception) {
-                                    Log.e("PreferencesEditor", "Failed to save preference: $key", e)
+                                    Log.e("BuildParametersEditor", "Failed to save preference: $key", e)
                                 }
                             },
                             showSaved = showSavedIndicator == key
@@ -483,7 +511,7 @@ fun DebugOverlayScreen(
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("Preferences", "Info", "Actions")
+    val tabs = listOf("Build Parameters", "Info", "Actions")
 
     val lavenderColor = Color(0xFFE6E0F8)
 
@@ -567,7 +595,7 @@ fun DebugOverlayScreen(
                     .padding(horizontal = 16.dp)
             ) {
                 when (selectedTab) {
-                    0 -> PreferencesEditor()
+                    0 -> BuildParametersEditor()
                     1 -> InfoSection(providers, context)
                     2 -> ActionsSection(actions, dialogScope, snackbarHostState)
                 }
